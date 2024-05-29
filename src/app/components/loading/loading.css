@@ -1,0 +1,15 @@
+/* Custom CSS */
+.spinfast {
+    animation: spin 0.5s infinite linear;
+  }
+  
+  /* Keyframes for spinning animation */
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  

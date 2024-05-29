@@ -1,0 +1,17 @@
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+@media (max-width : 571px) {
+    html {
+        font-size: 13px !important;
+    }
+}
