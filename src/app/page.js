@@ -219,7 +219,7 @@ export default function Home() {
         <div className="px-4 py-8 flex flex-col gap-4">
           <div className="flex flex-col gap-3 md:flex-row justify-between items-center">
             <p>
-              TimeZone :{" "}
+              TimeZone :{" "} hello
               <span
                 className="          dark:text-gray-300 text-gray-700
 "
