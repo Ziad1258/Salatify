@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 
 export default function AllahNames() {
-  const api = "http://api.aladhan.com/v1/asmaAlHusna";
+  const api = "https://api.aladhan.com/v1/asmaAlHusna";
   const [data, setData] = useState([]);
   const fetchApi = async (api) => {
     try {
@@ -23,7 +23,7 @@ export default function AllahNames() {
   <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-200 capitalize">
     <span className="text-green-800 dark:text-green-500">Allah</span> Names
   </h1>
-  <p>list of  names</p>
+  <p>list of 99 names</p>
   </div>
     <div className="overflow-x-scroll md:overflow-hidden shadow-lg border-2 dark:border-green-500 border-green-800  rounded-md ">
       <table
