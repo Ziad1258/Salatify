@@ -10,7 +10,8 @@ const poppins = Poppins({ subsets: ["latin"], weight: ["300", "500", "700"] });
 export const metadata = {
   title: "Saltify",
   description:
-    "Saltify is islamic website provide many services like Prayer Times and Sunnah and Qibla",
+    "Saltify is islamic website provide many services like Prayer Times and Sunnah and Qibla", 
+    
 };
 
 export default function RootLayout({ children }) {

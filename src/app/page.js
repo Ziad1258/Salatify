@@ -9,8 +9,11 @@ import { BsSunriseFill } from "react-icons/bs";
 import { BsSunsetFill } from "react-icons/bs";
 import { IoPartlySunnySharp } from "react-icons/io5";
 
-import moment from "moment";
+import moment, { duration } from "moment";
 import Loading from "./components/loading/loading";
+
+import axios from "axios";
+import next from "next";
 
 export default function Home() {
   const {showNav }= useContext(TogglerContext);
@@ -61,26 +64,68 @@ export default function Home() {
 
   const [selectedCity, setSelectedCity] = useState("Biskra");
   const [data, setData] = useState({});
+  const [theCity , setTheCity] = useState("");
+  const [loading, setLoading] = useState(false);
+  const key = '5a4efd762100442ba018c54fa4c345f7';
+    const api = "https://api.opencagedata.com/geocode/v1/json";
+    const adhanApi = "https://api.aladhan.com/v1/timings";
+    // const [cityInfo, setCityInfo] = useState({});
+    const getCityInfo = async () => {
 
-  const api = `https://api.aladhan.com/v1/timingsByCity?city=${selectedCity}&country=Algeria&method=8`;
+        try {
+            const response = await axios.get(api, {
+                params: {
+                    q: selectedCity,
+                    key,
+                    limit: 1
+                }
+            }
 
-  const fetchApi = async (api) => {
-    try {
-      const response = await fetch(api);
-      if(response.ok) {
-        const data = await response.json();
-      setData(data);
-      setTimes(data.data.timings);
-      console.log(data);
-      } else {
-        console.log("no respo");
-      }
-    } catch (err) {
-      Error("try an other city name", err);
-      setSelectedCity('Biskra')
+            );
+            const { lat, lng } = response.data.results[0].geometry;
+            // setCityInfo({ lat, lng });
+            if(lat && lng) getPrayerTimes(lat , lng);
+            console.log(response.data);
+            
+        } catch (err) {
+            console.log(err);
+            setSelectedCity("Biskra");
+            
+            
+        }
+
     }
-  };
 
+    const getPrayerTimes = async (lat,lng) => {
+      if(loading) return;
+      setLoading(true);
+     try {
+        const response = await axios.get(adhanApi , {
+            params : {
+                latitude : lat,
+                longitude : lng,
+            }            
+        });
+        setTimes(response.data.data.timings);
+        // console.log(response.data);
+        // setData(response.data)
+        setTheCity(response.data.data.meta.timezone);
+        setLoading(false);
+        
+
+        
+     } catch(err) {
+        console.log(err.response);
+       setLoading(false);
+        
+     }
+    }
+
+
+    useEffect(() => {
+        getCityInfo(selectedCity);
+    }, [selectedCity])
+ 
   const inputRef = useRef();
 
 
@@ -94,12 +139,7 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    fetchApi(api);
-
-    
-    
-  }, [selectedCity]);
+  
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -160,18 +200,17 @@ export default function Home() {
     
     
 
-    const formattedHours =
-      diff.hours() < 10 ? "0" + diff.hours() : diff.hours();
+    const formattedHours = diff.hours() < 10 ? "0" + diff.hours() : diff.hours();
     const formattedMinutes =
       diff.minutes() < 10 ? "0" + diff.minutes() : diff.minutes();
     const formattedSeconds =
       diff.seconds() < 10 ? "0" + diff.seconds() : diff.seconds();
-    const duration = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+    const duration =` ${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
     setLeftTime(duration);
-  };
+   };
 
   return (
-    <div
+      <div
       className="transtion-all duration-500 "
       style={{ transform: showNav ? "translateX(-200%)" : "translateX(0)" , opacity : showNav ? "0" : "1"  , position : showNav ? "absolute" : ""  }}
     >
@@ -205,68 +244,67 @@ export default function Home() {
       
 
       {
-        data.status ? 
-      <>
-        <div className="rounded-md border border-gray-300 dark:border-gray-700 dark:bg-darkGray">
-        <div className="px-4 py-8 flex flex-col md:flex-row gap-2 justify-between items-center ">
-          <h1 className="text-2xl capitalize"> {selectedCity} Prayer times.</h1>
-
-          <p className="dark:text-gray-300 text-gray-700">{today} </p>
+  !loading ? (
+    <>
+      <div className="rounded-md border border-gray-300 dark:border-gray-700 dark:bg-darkGray">
+        <div className="px-4 py-8 flex flex-col md:flex-row gap-2 justify-between items-center">
+          <h1 className="text-2xl capitalize">{selectedCity} Prayer times.</h1>
+          <p className="dark:text-gray-300 text-gray-700">{today}</p>
         </div>
-        <span className="w-[100%] h-[1px] bg-gray-300 dark:bg-gray-700 block">
-          {" "}
-        </span>
-        <div className="px-4 py-8 flex flex-col gap-4">
-          <div className="flex flex-col gap-3 md:flex-row justify-between items-center">
+        <span className="w-full h-[1px] bg-gray-300 dark:bg-gray-700 block"></span>
+        <div className="px-4 py-8 flex flex-col gap-8">
+          <div className="flex flex-col gap-3 sm:flex-row justify-between items-center">
             <p>
-              TimeZone :{" "} hello
-              <span
-                className="          dark:text-gray-300 text-gray-700
-"
-              >
-                Africa/Algeria
-              </span>
+              TimeZone:
+              <span className="dark:text-gray-300 text-gray-700"> {theCity} </span>
             </p>
             <p>
-              Location :{" "}
-              <span
-                className="          dark:text-gray-300 text-gray-700
-"
-              >
-                DZ, {selectedCity}
-              </span>
-            </p>{" "}
+              Location:
+              <span className="dark:text-gray-300 text-gray-700"> {selectedCity} </span>
+            </p>
           </div>
-          <p className=" text-xl text-center text-green-700 dark:text-green-500">
-          {data.status ? leftTime :"" }
+          <div className="flex sm:flex-row  gap-3 md:flex-row justify-between items-center">
+          <p className="text-md text-center ">
+           Next Prayer : <span className="text-green-700 dark:text-green-500"> {nextPrayer} </span>
           </p>
+          <p className="text-md text-center ">
+           left time : <span className="text-green-700 dark:text-green-500"> {leftTime} </span>
+          </p>
+         
+          </div>
         </div>
       </div>
-        <div className="grid  sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 mt-5">
-        {prayers.map((pray, index) => {
-          return (
-            <div
-              key={index}
-              className={` ${
-                pray.name === nextPrayer
-                  ? "border-green-500  border-2 transform shadow-xl "
-                  : ""
-              } bg-white dark:bg-darkGray border-gray-300 dark:border-gray-700 p-4 border  rounded-md`}
+
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5 mt-5">
+        {prayers.map((pray, index) => (
+          <div
+            key={index}
+            className={`bg-white dark:bg-darkGray border-gray-300 dark:border-gray-700 p-4 border rounded-md ${
+              pray.name === nextPrayer ? "border-green-500 border-2 transform shadow-xl" : ""
+            }`}
+          >
+            <p
+              className={`capitalize font-bold text-xl text-center text-green-500 ${
+                nextPrayer === pray.name ? "my-3" : ""
+              }`}
             >
-              <p className={`${nextPrayer === pray.name ? "my-3" : ""} capitalize font-bold text-xl text-center text-green-500`}> { pray.name === nextPrayer ? "next pray" : ""} </p>
-              <h1 className="capitalize text-2xl font-bold">{pray.name} </h1>
-              <p className="mt-3 dark:text-gray-300 text-gray-700">
-                {pray.time}{" "}
-              </p>
-              <div className="flex justify-center p-5 text-green-500 text-3xl">
-                {pray.icon}
-              </div>
+              {pray.name === nextPrayer ? "next pray" : ""}
+            </p>
+            <h1 className="capitalize text-2xl font-bold">{pray.name}</h1>
+            <p className="mt-3 dark:text-gray-300 text-gray-700">{pray.time}</p>
+            <div className="flex justify-center p-5 text-green-500 text-3xl">
+              {pray.icon}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
-      </> : <Loading />
-      }
+    </>
+  ) : (
+    <Loading />
+  )
+}
+
+      
     </div>
   );
 }

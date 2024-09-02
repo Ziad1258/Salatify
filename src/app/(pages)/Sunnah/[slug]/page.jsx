@@ -54,11 +54,10 @@ export default function Slug() {
                 return (
                   <tr
                     key={book.id}
-                    className={`${
-                      data.indexOf(book) + 1 === data.length
-                        ? "pt-2"
-                        : "py-2 border-b"
-                    } grid grid-cols-6 items-center w-full  border-gray-300 dark:border-gray-700 `}
+                    className={`${data.indexOf(book) + 1 === data.length
+                      ? "pt-2"
+                      : "py-2 border-b"
+                      } grid grid-cols-6 items-center w-full  border-gray-300 dark:border-gray-700 `}
                   >
                     <td className="col-span-1">{index + 1} </td>
 
